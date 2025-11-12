@@ -1,4 +1,4 @@
-# m2h - Markdown to HTML Converter
+# m2h
 
 A lightweight, pure Perl markdown to HTML converter that uses a state machine for parsing.
 
@@ -7,7 +7,7 @@ A lightweight, pure Perl markdown to HTML converter that uses a state machine fo
 - Pure Perl implementation - no external dependencies
 - State machine-based parsing for efficient and maintainable code
 - Converts standard markdown syntax to HTML
-- Secure HTML output, especially against XSS or file protocols 
+- Secure HTML output, especially against XSS or file protocols
 - Fast and lightweight
 
 ## Requirements
