@@ -23,6 +23,19 @@ sub show_version {
     exit 0;
 }
 
+sub read_input {
+    my ($file) = @_;
+    local $/;
+    if ($file) {
+        open my $fh, '<', $file
+          or die "Error: Cannot open file: $file\n";
+        my $content = <$fh>;
+        close $fh;
+        return $content;
+    }
+    return <STDIN>;
+}
+
 my $output_file;
 my $input_file;
 
@@ -46,18 +59,7 @@ for ( my $i = 0 ; $i < @ARGV ; $i++ ) {
     }
 }
 
-my $input;
-if ($input_file) {
-    open my $fh, '<', $input_file
-      or die "Error: Cannot open file: $input_file\n";
-    local $/;
-    $input = <$fh>;
-    close $fh;
-}
-else {
-    local $/;
-    $input = <STDIN>;
-}
+my $input = read_input($input_file);
 
 my $output;
 if ($output_file) {
