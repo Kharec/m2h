@@ -13,6 +13,7 @@ A lightweight, pure Perl markdown to HTML converter that uses a state machine fo
 ## Requirements
 
 - Perl 5.42 or higher
+- Getopt::Long (but it's already installed on most Perl installations)
 
 ## Installation
 
