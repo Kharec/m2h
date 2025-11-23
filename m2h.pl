@@ -1,5 +1,6 @@
 #!perl -w
 use strict;
+use Getopt::Long;
 use MarkdownParser;
 
 sub show_help {
@@ -37,27 +38,19 @@ sub read_input {
 }
 
 my $output_file;
-my $input_file;
+my $help = 0;
+my $version = 0;
 
-for ( my $i = 0 ; $i < @ARGV ; $i++ ) {
-    my $arg = $ARGV[$i];
-    if ( $arg eq '-h' || $arg eq '--help' ) {
-        show_help();
-    }
-    elsif ( $arg eq '-v' || $arg eq '--version' ) {
-        show_version();
-    }
-    elsif ( $arg eq '-o' || $arg eq '--output' ) {
-        $output_file = $ARGV[ ++$i ]
-          or die "Error: -o requires a filename\n";
-    }
-    elsif ( $arg =~ /^-/ ) {
-        die "Error: Unknown option: $arg\n";
-    }
-    else {
-        $input_file = $arg;
-    }
-}
+GetOptions(
+    'help|h'     => \$help,
+    'version|v'  => \$version,
+    'output|o=s' => \$output_file,
+) or show_help();
+
+show_help() if $help;
+show_version() if $version;
+
+my $input_file = shift @ARGV;
 
 my $input = read_input($input_file);
 
