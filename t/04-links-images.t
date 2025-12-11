@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 8;
+use Test::More tests => 10;
 use MarkdownParser;
 
 my $parser = MarkdownParser->new();
@@ -37,8 +37,14 @@ is(
     "<p>Click me</p>\n",
     "Data protocol blocked in links"
 );
+is(
+    $parser->parse("[Click me](javascript&#x3A;alert('XSS'))"),
+    "<p>Click me</p>\n",
+    "Encoded JavaScript protocol blocked in links"
+);
 is( $parser->parse("![Image](javascript:alert('XSS'))"),
     "<p>Image</p>\n", "JavaScript protocol blocked in images" );
 is( $parser->parse("![Image](file:///etc/passwd)"),
     "<p>Image</p>\n", "File protocol blocked in images" );
-
+is( $parser->parse("![Image](javascript:%2f%2falert('XSS'))"),
+    "<p>Image</p>\n", "Encoded JavaScript protocol blocked in images" );
