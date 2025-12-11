@@ -379,10 +379,22 @@ s/\x01F$i\x02/<$part->{tag}>@{[escape_html($part->{content})]}<\/$part->{tag}>/;
 
 sub is_safe_url {
     my ($url) = @_;
-    return 0 if $url =~ /^\s*javascript:/i;
-    return 0 if $url =~ /^\s*data:/i;
-    return 0 if $url =~ /^\s*vbscript:/i;
-    return 0 if $url =~ /^\s*file:/i;
+    my $normalized = $url // '';
+
+    $normalized =~ s/^\s+//;
+    $normalized =~ s/\s+$//;
+    $normalized =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/eg
+      while $normalized =~ /%[0-9A-Fa-f]{2}/;
+    $normalized =~ s/&#x([0-9A-Fa-f]+);?/chr(hex($1))/eg;
+    $normalized =~ s/&#(\d+);?/chr($1)/eg;
+
+    if ( $normalized =~ /^([a-z][a-z0-9+\-.]*):/i ) {
+        my $scheme = lc $1;
+        return 1
+          if $scheme eq 'http' || $scheme eq 'https' || $scheme eq 'mailto';
+        return 0;
+    }
+
     return 1;
 }
 
@@ -397,4 +409,3 @@ sub escape_html {
 }
 
 1;
-
