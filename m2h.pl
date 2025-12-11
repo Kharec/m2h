@@ -2,6 +2,7 @@
 use strict;
 use Getopt::Long;
 use MarkdownParser;
+use open qw(:std :encoding(UTF-8));
 
 sub show_help {
     print <<"EOF";
@@ -30,6 +31,7 @@ sub read_input {
     if ($file) {
         open my $fh, '<', $file
           or die "Error: Cannot open file: $file\n";
+        binmode $fh, ':encoding(UTF-8)';
         my $content = <$fh>;
         close $fh;
         return $content;
@@ -38,7 +40,7 @@ sub read_input {
 }
 
 my $output_file;
-my $help = 0;
+my $help    = 0;
 my $version = 0;
 
 GetOptions(
@@ -47,10 +49,13 @@ GetOptions(
     'output|o=s' => \$output_file,
 ) or show_help();
 
-show_help() if $help;
+show_help()    if $help;
 show_version() if $version;
 
 my $input_file = shift @ARGV;
+
+binmode STDIN,  ':encoding(UTF-8)';
+binmode STDOUT, ':encoding(UTF-8)';
 
 my $input = read_input($input_file);
 
@@ -58,6 +63,7 @@ my $output;
 if ($output_file) {
     open $output, '>', $output_file
       or die "Error: Cannot write to file: $output_file\n";
+    binmode $output, ':encoding(UTF-8)';
 }
 else {
     $output = \*STDOUT;
