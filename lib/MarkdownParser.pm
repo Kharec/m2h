@@ -288,8 +288,8 @@ sub parse_inline {
         push @bold_parts, { type => 'bold', content => $1 };
         return "\x01B$idx\x02";
     }->()/ge;
-    $text =~ s/___((?:[^_]|_(?!_))+?)___/<strong>$1<\/strong>/g;
-    $text =~ s/__((?:[^_]|_(?!_))+?)__/<strong>$1<\/strong>/g;
+    $text =~ s/(?<!\w)___((?:[^_]|_(?!_))+?)___(?!\w)/<strong>$1<\/strong>/g;
+    $text =~ s/(?<!\w)__((?:[^_]|_(?!_))+?)__(?!\w)/<strong>$1<\/strong>/g;
 
     my @italic_parts;
     my $italic_idx = 0;
@@ -298,7 +298,7 @@ sub parse_inline {
         push @italic_parts, { type => 'italic', content => $1 };
         return "\x01I$idx\x02";
     }->()/ge;
-    $text =~ s/_([^_]+)_/sub {
+    $text =~ s/(?<!\w)_((?:[^_]|_(?!_))+?)_(?!\w)/sub {
         my $idx = $italic_idx++;
         push @italic_parts, { type => 'italic', content => $1 };
         return "\x01I$idx\x02";
@@ -312,7 +312,7 @@ sub parse_inline {
             push @italic_parts, { type => 'italic', content => $1 };
             return "\x01I$idx\x02";
         }->()/ge;
-        $content =~ s/_([^_]+)_/sub {
+        $content =~ s/(?<!\w)_((?:[^_]|_(?!_))+?)_(?!\w)/sub {
             my $idx = $italic_idx++;
             push @italic_parts, { type => 'italic', content => $1 };
             return "\x01I$idx\x02";
