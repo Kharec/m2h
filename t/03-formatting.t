@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 11;
+use Test::More tests => 13;
 use MarkdownParser;
 
 my $parser = MarkdownParser->new();
@@ -62,4 +62,7 @@ is(
     "<p><strong>bold text</strong></p>\n",
     "Bold with ___"
 );
-
+is( $parser->parse("my_variable"),
+    "<p>my_variable</p>\n", "Underscore inside word unchanged" );
+is( $parser->parse("CONST__VALUE"),
+    "<p>CONST__VALUE</p>\n", "Double underscores inside word unchanged" );
