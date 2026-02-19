@@ -379,16 +379,14 @@ s/\x01F$i\x02/<$part->{tag}>@{[escape_html($part->{content})]}<\/$part->{tag}>/;
 
 sub is_safe_url {
     my ($url) = @_;
-    my $normalized = $url // '';
+    my $normalized = decode_url_escapes($url);
 
     $normalized =~ s/^\s+//;
     $normalized =~ s/\s+$//;
-    $normalized =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/eg
-      while $normalized =~ /%[0-9A-Fa-f]{2}/;
-    $normalized =~ s/&#x([0-9A-Fa-f]+);?/chr(hex($1))/eg;
-    $normalized =~ s/&#(\d+);?/chr($1)/eg;
+    my $scheme_check = $normalized;
+    $scheme_check =~ s/[\x00-\x20\x7f]+//g;
 
-    if ( $normalized =~ /^([a-z][a-z0-9+\-.]*):/i ) {
+    if ( $scheme_check =~ /^([a-z][a-z0-9+\-.]*):/i ) {
         my $scheme = lc $1;
         return 1
           if $scheme eq 'http' || $scheme eq 'https' || $scheme eq 'mailto';
@@ -396,6 +394,28 @@ sub is_safe_url {
     }
 
     return 1;
+}
+
+sub decode_url_escapes {
+    my ($value) = @_;
+    my $decoded = $value // '';
+
+    for ( 1 .. 8 ) {
+        my $before = $decoded;
+        $decoded =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/eg;
+        $decoded =~ s/&#x([0-9A-Fa-f]+);?/_safe_chr(hex($1))/eg;
+        $decoded =~ s/&#(\d+);?/_safe_chr($1)/eg;
+        last if $decoded eq $before;
+    }
+
+    return $decoded;
+}
+
+sub _safe_chr {
+    my ($codepoint) = @_;
+    return '' if !defined $codepoint;
+    return '' if $codepoint > 0x10FFFF;
+    return chr($codepoint);
 }
 
 sub escape_html {
