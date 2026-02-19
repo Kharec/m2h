@@ -10,6 +10,7 @@ my %CLOSING_TAGS = (
     olist      => "</ol>",
     blockquote => "</blockquote>",
     table      => "</table>",
+    code_block => "</code></pre>",
 );
 
 sub new {
@@ -166,7 +167,6 @@ sub handle_code_block_line {
     my ( $self, $line ) = @_;
 
     if ( $line =~ /^```/ ) {
-        $self->{output} .= "</code></pre>\n";
         $self->transition_to_state('paragraph');
     }
     else {
