@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 5;
+use Test::More tests => 6;
 use MarkdownParser;
 
 my $parser = MarkdownParser->new();
@@ -32,4 +32,8 @@ is(
     "<pre><code>\n</code></pre>\n",
     "Empty code block"
 );
-
+is(
+    $parser->parse("```\nunterminated"),
+    "<pre><code>\nunterminated\n</code></pre>\n",
+    "Unclosed code block is closed at EOF"
+);
