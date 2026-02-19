@@ -30,7 +30,7 @@ chmod +x m2h.pl
 Convert a markdown file to HTML:
 
 ```bash
-perl -Ilibm2h.pl input.md > output.html
+perl -Ilib m2h.pl input.md > output.html
 ```
 
 Or read from stdin:
