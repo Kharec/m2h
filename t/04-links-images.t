@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 10;
+use Test::More tests => 17;
 use MarkdownParser;
 
 my $parser = MarkdownParser->new();
@@ -48,3 +48,38 @@ is( $parser->parse("![Image](file:///etc/passwd)"),
     "<p>Image</p>\n", "File protocol blocked in images" );
 is( $parser->parse("![Image](javascript:%2f%2falert('XSS'))"),
     "<p>Image</p>\n", "Encoded JavaScript protocol blocked in images" );
+is(
+    $parser->parse("[Click me](javascript&#10;:alert('XSS'))"),
+    "<p>Click me</p>\n",
+    "JavaScript protocol with numeric newline entity blocked"
+);
+is(
+    $parser->parse("[Click me](java&#x0D;script:alert('XSS'))"),
+    "<p>Click me</p>\n",
+    "JavaScript protocol with hex carriage return entity blocked"
+);
+is(
+    $parser->parse("[Click me](javascr&#x69;pt%3Aalert('XSS'))"),
+    "<p>Click me</p>\n",
+    "Mixed encoded JavaScript protocol blocked"
+);
+is(
+    $parser->parse("![Image](java&#9;script:alert('XSS'))"),
+    "<p>Image</p>\n",
+    "JavaScript protocol with tab entity blocked in images"
+);
+is(
+    $parser->parse("[email](mailto:user\@example.com)"),
+    "<p><a href=\"mailto:user\@example.com\">email</a></p>\n",
+    "Mailto protocol remains allowed"
+);
+is(
+    $parser->parse("[safe](%68%74%74%70%73://example.com/path)"),
+    "<p><a href=\"%68%74%74%70%73://example.com/path\">safe</a></p>\n",
+    "Percent-encoded https scheme remains allowed"
+);
+is(
+    $parser->parse("[relative](/docs/java script:guide)"),
+    "<p><a href=\"/docs/java script:guide\">relative</a></p>\n",
+    "Relative URL with colon in path remains allowed"
+);
